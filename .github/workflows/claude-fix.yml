@@ -1,0 +1,49 @@
+name: Claude Fix
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened]
+
+jobs:
+  fix:
+    if: |
+      github.actor != 'claude[bot]' &&
+      github.actor != 'github-actions[bot]' &&
+      (
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'issues' && contains(github.event.issue.body, '@claude'))
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          allowed_bots: "novee-security"
+          bot_name: "novee-fix"
+          claude_args: |
+            --allowedTools "Bash,Read,Edit,MultiEdit,Write"
+          prompt: |
+            A security vulnerability has been reported in issue #${{ github.event.issue.number }}: "${{ github.event.issue.title }}".
+
+            Issue description:
+            ${{ github.event.issue.body }}
+
+            Fix ONLY the vulnerability described in issue #${{ github.event.issue.number }} above.
+            The description contains the vulnerability type, location, affected code, and recommended remediation.
+            Fix the root cause. Do not apply band-aid patches, workarounds, or input validation as a substitute for proper remediation.
+            Prefer the simplest fix that uses existing dependencies.
+            Match the codebase's existing patterns and style.
+            Do not refactor or modify unrelated code, and do not fix other vulnerabilities you may notice — only issue #${{ github.event.issue.number }}.
+            Create a branch, commit the fix, and open a PR that closes issue #${{ github.event.issue.number }}.
+            If you cannot produce a code fix (e.g. the issue requires infrastructure changes, configuration outside the repo, or manual intervention), comment on issue #${{ github.event.issue.number }} explaining why and what steps are needed instead.
