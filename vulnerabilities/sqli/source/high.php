@@ -17,7 +17,7 @@ if( isset( $_SESSION [ 'id' ] ) ) {
 				$last  = $row["last_name"];
 
 				// Feedback for end user
-				$html .= "<pre>ID: {$id}<br />First name: {$first}<br />Surname: {$last}</pre>";
+				$html .= "<pre>ID: " . htmlspecialchars( $id, ENT_QUOTES, 'UTF-8' ) . "<br />First name: {$first}<br />Surname: {$last}</pre>";
 			}
 
 			((is_null($___mysqli_res = mysqli_close($GLOBALS["___mysqli_ston"]))) ? false : $___mysqli_res);		
@@ -41,7 +41,7 @@ if( isset( $_SESSION [ 'id' ] ) ) {
 					$last  = $row["last_name"];
 
 					// Feedback for end user
-					$html .= "<pre>ID: {$id}<br />First name: {$first}<br />Surname: {$last}</pre>";
+					$html .= "<pre>ID: " . htmlspecialchars( $id, ENT_QUOTES, 'UTF-8' ) . "<br />First name: {$first}<br />Surname: {$last}</pre>";
 				}
 			} else {
 				echo "Error in fetch ".$sqlite_db->lastErrorMsg();
